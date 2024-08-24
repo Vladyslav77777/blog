@@ -1,4 +1,5 @@
 package com.example.blog.security;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -16,41 +17,28 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
-                                .requestMatchers("/", "/home").permitAll() // Разрешаем доступ к / и /home всем
-                                .anyRequest().authenticated() // Остальные запросы требуют авторизации
+                                .requestMatchers("/", "/home", "/user/register", "/user/login").permitAll() // Доступ к публичным страницам
+                                .anyRequest().authenticated() // Все остальные запросы требуют авторизации
                 )
                 .formLogin(formLogin ->
                         formLogin
-                                .loginPage("/login") // Страница входа
-                                .loginProcessingUrl("/perform_login") // URL для обработки формы входа
-                                .defaultSuccessUrl("/home", true) // URL после успешного входа
-                                .permitAll() // Разрешаем доступ к форме входа всем
+                                .loginPage("/user/login") // Страница входа
+                                .defaultSuccessUrl("/home", true) // Перенаправление после успешного входа
+                                .permitAll()
                 )
                 .logout(logout ->
                         logout
-                                .logoutUrl("/logout") // URL для выхода
-                                .logoutSuccessUrl("/login?logout") // URL после выхода
-                                .permitAll() // Разрешаем доступ к выходу всем
-                )//DALSHE OSHIBKAAAAAAA!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                .exceptionHandling(exceptionHandling ->
-                        exceptionHandling
-                                .authenticationEntryPoint((request, response, authException) ->
-                                        response.sendRedirect("/custom_login")) // Перенаправление на страницу входа при неавторизованном доступе
+                                .logoutUrl("/logout")
+                                .logoutSuccessUrl("/user/login?logout")
+                                .permitAll()
                 );
+                //.csrf().disable(); // Отключение CSRF для упрощения (не рекомендуется на продакшене)
+
         return http.build();
     }
-
-
 
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 }
-
-
-
-
-
-
-
